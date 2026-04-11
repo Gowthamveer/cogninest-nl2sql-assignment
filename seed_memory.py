@@ -207,3 +207,4 @@ async def seed_memory() -> None:
 if __name__ == "__main__":
     print("🌱 Seeding Vanna 2.0 agent memory …\n")
     asyncio.run(seed_memory())
+
