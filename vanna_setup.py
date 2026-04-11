@@ -162,3 +162,4 @@ def build_agent() -> tuple[Agent, DemoAgentMemory]:
 # ─── Module-level singletons (imported by main.py and seed_memory.py) ─────────
 
 agent, agent_memory = build_agent()
+
