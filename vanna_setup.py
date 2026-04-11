@@ -131,11 +131,10 @@ def build_agent() -> tuple[Agent, DemoAgentMemory]:
 
     # 3. Tool Registry
     registry = ToolRegistry()
-    registry.register_local_tool(RunSqlTool(sql_runner=sql_runner), access_groups=["*"])
-    registry.register_local_tool(VisualizeDataTool(), access_groups=["*"])
-    registry.register_local_tool(SaveQuestionToolArgsTool(), access_groups=["*"])
-    registry.register_local_tool(SearchSavedCorrectToolUsesTool(), access_groups=["*"])
-
+    registry.register(RunSqlTool(sql_runner=sql_runner))
+    registry.register(VisualizeDataTool())
+    registry.register(SaveQuestionToolArgsTool())
+    registry.register(SearchSavedCorrectToolUsesTool())
     # 4. Agent Memory
     memory = DemoAgentMemory(max_items=5_000)
 

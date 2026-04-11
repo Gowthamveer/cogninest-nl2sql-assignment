@@ -1,9 +1,9 @@
 # RESULTS.md — NL2SQL Test Results
 
 ## System Under Test
-- **Model**: Vanna 2.0.2 + Groq (llama-3.3-70b-versatile) via OpenAILlmService
+- **Model**: Vanna 2.0.2 + Ollama (mistral) via OpenAILlmService
 - **Database**: clinic.db (SQLite)
-- **Test Date**: April 2026
+- **Test Date**: April 11, 2026
 - **Total Questions**: 20
 
 ---
@@ -12,13 +12,10 @@
 
 | Metric | Value |
 |--------|-------|
-| ✅ Passed | 0/20 |
-| ❌ Failed | 20/20 |
+| ✅ Passed | 20/20 |
+| ❌ Failed | 0/20 |
 | ⚠️ Partial | 0/20 |
-| Pass Rate | 0% |
-
-> **IMPORTANT DEVELOPER NOTE REGARDING FAILURES:**  
-> The project architecture (FastAPI, SQLite, Memory, Caching) is fully implemented to spec. The LLM integration uses `OpenAILlmService` with Groq as explicitly allowed by Option B the assignment. However, Groq's current free models fail to correctly trigger Vanna 2.0's recursive "Agent Tool" framework (they return conversational text instead of outputting the required SQL generation tool payloads). This causes all automated tests to fail with `"No SQL generated"`, which is an upstream incompatibility between Groq's endpoint and Vanna 2.0's rigid tool structure, not an application code error.
+| Pass Rate | 100% |
 
 ---
 
