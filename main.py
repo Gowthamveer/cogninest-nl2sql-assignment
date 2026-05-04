@@ -312,7 +312,8 @@ async def chat(request: Request, body: QuestionRequest):
     # ── Cache check ──────────────────────────────────────────────────────────
     cached = _cache_get(question)
     if cached:
-        return ChatResponse(**cached, cached=True)
+        cached["cached"] = True
+        return ChatResponse(**cached)
 
     # ── Build request context ────────────────────────────────────────────────
     req_ctx = RequestContext(
@@ -331,9 +332,51 @@ async def chat(request: Request, body: QuestionRequest):
         raise HTTPException(status_code=500, detail=f"Agent error: {exc}")
 
     parsed = _parse_components(components)
+    sql = parsed["sql"]
+
+    # ── Fallback SQL Generation (if Agent failed) ────────────────────────────
+    if not sql:
+        logger.warning("Agent failed to produce SQL. Triggering Bulletproof Fallback...")
+        try:
+            # Direct LLM call for SQL
+            # We use the agent's llm_service directly
+            prompt = (
+                f"You are a SQLite expert for a clinic database. "
+                f"The database has the following tables:\n"
+                f"1. patients (id, first_name, last_name, email, phone, date_of_birth, gender, city, registered_date)\n"
+                f"2. doctors (id, name, specialization, department, phone)\n"
+                f"3. appointments (id, patient_id, doctor_id, appointment_date, status, notes)\n"
+                f"4. treatments (id, appointment_id, treatment_name, cost, duration_minutes)\n"
+                f"5. invoices (id, patient_id, invoice_date, total_amount, paid_amount, status)\n\n"
+                f"Question: {question}\n"
+                f"Output ONLY the valid SQLite query to answer this. No explanation."
+            )
+            
+            # Use the underlying client if possible for speed
+            service = agent.llm_service
+            if hasattr(service, "_client"):
+                fallback_resp = service._client.chat.completions.create(
+                    model=service.model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.0
+                )
+                sql = fallback_resp.choices[0].message.content
+                # Clean up SQL
+                sql = re.sub(r"```sql|```", "", sql).strip()
+                logger.info(f"Fallback SQL generated: {sql[:50]}...")
+                
+                # Execute it manually
+                if sql.upper().startswith("SELECT"):
+                    try:
+                        df = agent.tool_registry.get_tool("RunSqlTool").sql_runner.run_sql(sql)
+                        parsed["columns"] = list(df.columns)
+                        parsed["rows"] = df.values.tolist()
+                    except Exception as e:
+                        logger.error(f"Fallback execution error: {e}")
+        except Exception as fb_exc:
+            logger.error(f"Fallback failed: {fb_exc}")
 
     # ── SQL Validation ───────────────────────────────────────────────────────
-    sql = parsed["sql"]
     if sql:
         valid, reason = validate_sql(sql)
         if not valid:

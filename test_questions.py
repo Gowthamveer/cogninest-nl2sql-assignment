@@ -12,7 +12,7 @@ import time
 
 import requests
 
-BASE_URL = "http://localhost:8001"
+BASE_URL = "http://localhost:8000"
 
 QUESTIONS = [
     (1,  "How many patients do we have?",                     "Returns count"),
