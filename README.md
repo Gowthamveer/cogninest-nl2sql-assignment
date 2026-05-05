@@ -1,7 +1,7 @@
 # 🏥 NL2SQL Clinic Chatbot
 
 > Ask plain-English questions about clinic data — no SQL required.  
-> Built with **Vanna AI 2.0**, **FastAPI**, and **Ollama (Mistral)**.
+> Built with **Vanna AI 2.0**, **FastAPI**, and **Groq (Llama 3)**.
 
 ---
 
@@ -21,7 +21,7 @@ User Question (English)
         │
         ▼
    Vanna 2.0 Agent
-   ├── OpenAILlmService   (Ollama/mistral — local, free, no API key)
+   ├── OpenAILlmService   (Groq/Llama-3 — ultra-fast cloud inference)
    ├── RunSqlTool         (executes against clinic.db)
    ├── VisualizeDataTool  (generates Plotly charts)
    └── DemoAgentMemory    (learns from 15 pre-seeded Q&A pairs)
@@ -55,7 +55,8 @@ project/
 |------|---------|-------|
 | Python | 3.10+ | Required |
 | pip | Latest | `pip install --upgrade pip` |
-| Ollama | Latest | [Download here](https://ollama.com) — runs locally, completely free |
+| Groq | Latest | [Get API Key here](https://console.groq.com) — ultra-fast cloud inference |
+| Ollama | Optional | [Download here](https://ollama.com) — runs locally, completely free |
 
 ---
 
